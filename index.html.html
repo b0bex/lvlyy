@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>L❤LY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================================================
+           1. DESIGN SYSTEM (DARK MODE - RED ACCENTS)
+           ========================================================================== */
+        :root {
+            /* Nowe kolory - Ciemne tło, Czerwone akcenty */
+            --col-bg-main: #1A1A1A;      /* Bardzo ciemne tło */
+            --col-bg-ui: #2C2C2C;        /* Tło kart/paneli */
+            --col-accent: #FF4F4F;       /* Główny czerwony - pasja/akcja */
+            --col-accent-dark: #cc3e3e;  /* Ciemniejszy akcent */
+            --col-secondary: #FF8F7A;    /* Koralowy - ciepło/relacje */
+            --col-border: #444444;       /* Ramki na ciemnym tle */
+            --col-text: #F0F0F0;         /* Główny jasny tekst */
+            --col-text-muted: #AAAAAA;   /* Tekst poboczny */
+            
+            /* Cienie (efekt "żaru" lub głębi) */
+            --shadow-soft: 0 5px 15px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 15px rgba(255, 79, 79, 0.4);
+
+            /* Fonty */
+            --font-ui: 'Inter', sans-serif;
+            --font-story: 'Lora', serif;
+        }
+
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--col-bg-main);
+            color: var(--col-text);
+            font-family: var(--font-ui);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Paski przewijania (Estetyczne Dark Mode) */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--col-bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--col-border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--col-accent); }
+
+        /* ==========================================================================
+           2. EKRAN STARTOWY & HUD
+           ========================================================================== */
+        #intro-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--col-bg-main);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 9999;
+            transition: opacity 10s ease-in-out, visibility 10s;
+            padding: 30px; text-align: center;
+        }
+
+        .logo-main {
+            font-size: 8rem; font-weight: 900; letter-spacing: -6px;
+            color: var(--col-accent); margin: 0; line-height: 1;
+            text-transform: uppercase; text-shadow: var(--shadow-glow);
+        }
+
+        .logo-sub {
+            font-size: 1.5rem; letter-spacing: 6px; color: var(--col-secondary);
+            text-transform: uppercase; margin-top: 10px; font-weight: 600;
+        }
+
+        .intro-desc {
+            max-width: 600px; font-family: var(--font-story); font-size: 1.2rem;
+            line-height: 1.7; color: var(--col-text-muted); margin: 30px 0 60px 0;
+        }
+
+        .btn-start {
+            padding: 20px 60px;
+            background-color: var(--col-accent);
+            color: white; font-size: 1.2rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px;
+            border: none; border-radius: 50px;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 10px 25px rgba(255, 79, 79, 0.3);
+        }
+        .btn-start:hover {
+            background-color: var(--col-accent-dark);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(255, 79, 79, 0.5), var(--shadow-glow);
+        }
+
+        /* --- LEWY PANEL (HUD) --- */
+        #game-container {
+            display: flex; height: 100vh; width: 100vw;
+            opacity: 0; visibility: hidden; transition: opacity 1.5s;
+        }
+
+        .hud-sidebar {
+            width: 380px; background: var(--col-bg-ui);
+            border-right: 1px solid var(--col-border);
+            display: flex; flex-direction: column;
+            padding: 30px; overflow-y: auto; flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .profile-card {
+            display: flex; align-items: center; padding-bottom: 25px;
+            border-bottom: 1px solid var(--col-border); margin-bottom: 30px;
+        }
+        .avatar {
+            width: 64px; height: 64px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--col-accent), var(--col-secondary));
+            border: 3px solid var(--col-accent);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: white; margin-right: 15px; font-size: 1.5rem;
+            box-shadow: 0 0 10px rgba(255, 79, 79, 0.7);
+        }
+        .profile-info h3 { margin: 0; font-size: 1.2rem; color: var(--col-text); }
+        .profile-info span { font-size: 0.9rem; color: var(--col-secondary); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .level-bar {
+            margin-top: 10px; font-size: 0.8rem; color: var(--col-text-muted);
+        }
+
+        /* Statystyki */
+        .stats-container { margin-bottom: 40px; }
+        .stat-box { margin-bottom: 20px; }
+        .stat-header {
+            display: flex; justify-content: space-between; margin-bottom: 8px;
+            font-size: 0.95rem; color: var(--col-text); font-weight: 600;
+        }
+        .progress-track {
+            height: 12px; background: #3c3c3c; border-radius: 6px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, var(--col-secondary), var(--col-accent));
+            transition: width 1s ease-out;
+            box-shadow: 0 0 5px var(--col-accent);
+        }
+
+        /* Wiedza / Traits */
+        .knowledge-area {
+            background: var(--col-bg-main); padding: 20px; border-radius: 12px;
+            margin-top: auto; border: 1px solid var(--col-border);
+        }
+        .knowledge-title {
+            font-size: 0.9rem; text-transform: uppercase; color: var(--col-accent);
+            margin: 0 0 15px 0; font-weight: 700; letter-spacing: 1px;
+        }
+        .trait-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .tag {
+            font-size: 0.8rem; background: #3d3d3d; color: var(--col-text);
+            padding: 8px 12px; border-radius: 6px; border: 1px solid #555;
+            font-weight: 500; transition: background 0.3s;
+        }
+        .tag:hover { background: var(--col-accent); color: white; }
+
+        /* --- PRAWY PANEL (TREŚĆ) --- */
+        .stage-area {
+            flex-grow: 1; position: relative;
+            background-color: var(--col-bg-main);
+            background-image: radial-gradient(var(--col-border) 1px, transparent 1px);
+            background-size: 40px 40px;
+            display: flex; justify-content: center; align-items: center;
+            padding: 50px;
+        }
+
+        .story-card {
+            width: 100%; max-width: 900px; max-height: 90vh;
+            background: var(--col-bg-ui);
+            border: 1px solid var(--col-border); border-radius: 16px;
+            padding: 60px; overflow-y: auto;
+            display: flex; flex-direction: column;
+            box-shadow: var(--shadow-soft);
+            opacity: 0; transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        /* Typografia Treści */
+        .chapter-badge {
+            display: inline-block; color: var(--col-secondary); font-size: 0.9rem;
+            text-transform: uppercase; letter-spacing: 3px; font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .scene-title {
+            font-family: var(--font-story); font-size: 3rem; color: var(--col-text);
+            margin: 0 0 35px 0; line-height: 1.2; letter-spacing: -0.5px;
+            border-left: 4px solid var(--col-accent); padding-left: 20px;
+        }
+
+        .scene-text {
+            font-family: var(--font-story); font-size: 1.3rem; line-height: 1.9;
+            color: var(--col-text); margin-bottom: 40px;
+        }
+        
+        /* Stylizacja wewnątrz tekstu (JS) */
+        .scene-text strong { color: var(--col-accent); font-weight: 700; }
+        .scene-text em { background-color: #3b3b3b; padding: 0 4px; font-style: italic; color: var(--col-secondary); }
+        
+        .source-cite {
+            display: block; margin-top: 30px; font-size: 0.95rem; color: var(--col-text-muted);
+            font-family: var(--font-ui); border-left: 4px solid var(--col-secondary);
+            padding: 15px 20px; background: #222222; border-radius: 8px; font-style: italic;
+        }
+
+        /* Panel Wyborów */
+        .choices-container { display: grid; gap: 18px; }
+        
+        .btn-choice {
+            background-color: var(--col-bg-main);
+            border: 2px solid var(--col-border); padding: 25px 30px;
+            border-radius: 12px; color: var(--col-text); text-align: left;
+            font-family: var(--font-ui); font-size: 1.1rem; font-weight: 500;
+            cursor: pointer; transition: all 0.2s; position: relative;
+        }
+        .btn-choice:hover {
+            border-color: var(--col-accent); background-color: #2c2c2c;
+            transform: translateX(5px); box-shadow: var(--shadow-glow);
+        }
+        .btn-choice strong { color: var(--col-secondary); }
+
+        /* Panel Feedbacku (Analiza) */
+        .feedback-box {
+            background-color: #402628; border: 1px solid var(--col-accent);
+            padding: 30px; border-radius: 12px; margin-bottom: 30px;
+            animation: fadeIn 0.6s ease-out;
+            box-shadow: 0 0 10px rgba(255, 79, 79, 0.2);
+        }
+        .feedback-title {
+            color: var(--col-secondary); font-weight: 700; text-transform: uppercase;
+            font-size: 1rem; margin-bottom: 15px; display: flex; align-items: center; gap:10px;
+            letter-spacing: 1px;
+        }
+        .feedback-box div { font-size:1.1rem; line-height:1.7; color:var(--col-text-muted); }
+
+        /* Nowa sekcja: WYBÓR MODUŁÓW */
+        #module-select-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95); z-index: 1000;
+            display: flex; flex-direction: column; align-items: center;
+            padding: 50px; overflow-y: auto;
+            opacity: 0; visibility: hidden; transition: opacity 0.5s;
+        }
+
+        .module-list-title {
+            color: var(--col-accent); text-transform: uppercase; font-size: 2.2rem;
+            margin-bottom: 40px; letter-spacing: 2px;
+        }
+
+        .module-list {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px; max-width: 1200px; width: 100%;
+        }
+
+        .module-card {
+            background: var(--col-bg-ui); padding: 25px; border-radius: 10px;
+            border: 1px solid var(--col-border); cursor: pointer;
+            transition: all 0.3s; position: relative;
+        }
+        .module-card.locked {
+            opacity: 0.5; pointer-events: none;
+            filter: grayscale(100%);
+        }
+        .module-card:not(.locked):hover {
+            transform: translateY(-5px); box-shadow: var(--shadow-glow);
+            border-color: var(--col-accent);
+        }
+
+        .module-card h4 {
+            color: var(--col-secondary); font-size: 1.1rem; margin-bottom: 8px;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .module-card h3 {
+            color: var(--col-text); font-size: 1.8rem; margin: 0 0 15px 0;
+            border-bottom: 1px dashed #444; padding-bottom: 10px;
+        }
+        .module-card p {
+            font-size: 1rem; color: var(--col-text-muted); line-height: 1.6;
+        }
+        .module-card .progress-indicator {
+            position: absolute; top: 10px; right: 10px;
+            font-size: 0.9rem; color: var(--col-accent); font-weight: 700;
+        }
+
+
+        /* --- MOBILE RESPONSYWNOŚĆ --- */
+        @media (max-width: 900px) {
+            #game-container { flex-direction: column; overflow: hidden; }
+            
+            /* HUD na Mobile */
+            .hud-sidebar {
+                width: 100%; height: auto; max-height: 120px;
+                flex-direction: row; padding: 15px;
+                border-right: none; border-bottom: 1px solid var(--col-border);
+            }
+            .profile-card { border: none; margin: 0; padding: 0; margin-right: 20px; }
+            .knowledge-area { display: none; }
+            .stats-container {
+                display: flex; gap: 10px; flex-grow: 1; overflow-x: auto;
+                align-items: center; margin: 0;
+            }
+            .stat-box { min-width: 100px; margin: 0; }
+            .stat-header { font-size: 0.75rem; }
+            .progress-track { height: 6px; }
+
+            /* Scena na Mobile */
+            .stage-area { padding: 15px; align-items: flex-start; overflow-y: auto; }
+            .story-card { padding: 25px; margin-bottom: 50px; }
+            .scene-title { font-size: 1.8rem; padding-left: 10px; }
+            .scene-text { font-size: 1.1rem; line-height: 1.7; }
+            .btn-choice { padding: 18px 20px; font-size: 1rem; }
+            
+            .logo-main { font-size: 4rem; }
+            .btn-start { width: 100%; padding: 15px; }
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div id="intro-screen">
+        <div class="logo-wrapper">
+            <h1 class="logo-main">L❤LY</h1>
+            <div class="logo-sub">PRZYCIĄGANIE</div>
+        </div>
+        <div class="intro-desc">
+            
+            <br>
+            
+        </div>
+       
+    </div>
+
+    <div id="module-select-screen">
+        <h2 class="module-list-title">Wybór Ścieżki Rozwoju</h2>
+        <div id="module-list" class="module-list">
+            </div>
+        <div style="margin-top: 40px; font-size: 1.1rem; color: var(--col-text-muted);">
+            Kliknij na odblokowany moduł, aby powrócić do teorii lub scenariusza.
+        </div>
+    </div>
+
+
+    <div id="game-container">
+        
+        <aside class="hud-sidebar">
+            <div class="profile-card">
+                <div class="avatar">LV</div>
+                <div class="profile-info">
+                    <h3 id="u-name">Uczestnik</h3>
+                    <span id="u-rank">LVL 1: Obserwator</span>
+                </div>
+                <div id="level-bar" class="level-bar">Postęp: <span id="game-progress">0%</span></div>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-box">
+                    <div class="stat-header"><span>Autentyczność (Authen.)</span> <span id="v-auth">10%</span></div>
+                    <div class="progress-track"><div id="b-auth" class="progress-fill"></div></div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-header"><span>Spójność (Coherence)</span> <span id="v-coherence">10%</span></div>
+                    <div class="progress-track"><div id="b-coherence" class="progress-fill"></div></div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-header"><span>Inteligencja Emoc. (EQ)</span> <span id="v-eq">10%</span></div>
+                    <div class="progress-track"><div id="b-eq" class="progress-fill"></div></div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-header"><span>Asertywność (NVC)</span> <span id="v-nvc">10%</span></div>
+                    <div class="progress-track"><div id="b-nvc" class="progress-fill"></div></div>
+                </div>
+            </div>
+
+            <button class="btn-start" style="margin-top: 20px;" onclick="showModuleSelect(true)">Wybór Modułów</button>
+
+            <div class="knowledge-area">
+                <div class="knowledge-title">Osiągnięcia (Mastery Traits)</div>
+                <div id="u-traits" class="trait-tags">
+                    <span class="tag" style="opacity:0.5; font-style:italic;">Brak odblokowanych schematów...</span>
+                </div>
+            </div>
+            
+        </aside>
+
+        <main class="stage-area">
+            <div id="story-card" class="story-card">
+                <div id="s-chapter" class="chapter-badge">Ładowanie systemu...</div>
+                <h2 id="s-title" class="scene-title">Inicjalizacja Wersja 2.0</h2>
+                
+                <div id="feedback-area"></div>
+
+                <div id="s-text" class="scene-text">
+                    Przygotowywanie Masterclass. Proszę czekać na Część 2 z silnikiem i rozbudowanymi modułami.
+                </div>
+
+                <div id="choices-area" class="choices-container">
+                    </div>
+            </div>
+        </main>
+    </div>
+	<script>
+    /* ==========================================================================
+       SILNIK GRY (CORE ENGINE 2.0)
+       ========================================================================== */
+    
+    // Stan gry - przechowuje postępy, statystyki i odblokowane moduły
+    const State = {
+        stats: {
+            auth: 10,       // Autentyczność (zgodność ze sobą)
+            coherence: 10,  // Spójność (pewność siebie/mowa ciała)
+            eq: 10,         // Inteligencja Emocjonalna (empatia)
+            nvc: 10         // Asertywność (komunikacja bez przemocy)
+        },
+        traits: [],             // Zdobyte umiejętności / wiedza
+        unlockedModules: [1],   // Lista ID odblokowanych modułów (na start tylko 1)
+        currentScene: 'intro_00',
+        history: []             // Historia wyborów (do analizy końcowej)
+    };
+
+    // Definicje Modułów (do ekranu wyboru)
+    const ModulesData = [
+        { id: 1, title: "M1: Architektura Umysłu", desc: "Schematy poznawcze, lęk przed oceną i lustro prawdy.", scene: 'm1_start' },
+        { id: 2, title: "M2: Bio-Hacking Pewności", desc: "Mowa ciała, hormony i zasada spójności.", scene: 'm2_start' },
+        { id: 3, title: "M3: Sztuka Połączenia", desc: "Aktywne słuchanie i psychologia pierwszego wrażenia.", scene: 'm3_start' },
+        { id: 4, title: "M4: Fundamenty Zaufania", desc: "Mikro-momenty, konsekwencja i wiarygodność.", scene: 'm4_start' },
+        { id: 5, title: "M5: Energia i Wpływ", desc: "Neurony lustrzane i zarządzanie atmosferą grupy.", scene: 'm5_start' },
+        { id: 6, title: "M6: Asertywność (NVC)", desc: "Rozwiązywanie konfliktów i wyrażanie granic.", scene: 'm6_start' },
+        { id: 7, title: "M7: Finał & Integracja", desc: "Symulacja końcowa i Twój nowy styl życia.", scene: 'm7_start' }
+    ];
+
+    // --- FUNKCJE SYSTEMOWE ---
+
+    // Parser tekstu (Markdown -> HTML)
+    function parse(text) {
+        if (!text) return '';
+        let t = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        t = t.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        t = t.replace(/\n/g, '<br>');
+        return t;
+    }
+
+    // Aktualizacja Interfejsu (HUD)
+    function updateUI() {
+        // Paski postępu
+        const mapping = {
+            'auth': ['b-auth', 'v-auth'],
+            'coherence': ['b-coherence', 'v-coherence'],
+            'eq': ['b-eq', 'v-eq'],
+            'nvc': ['b-nvc', 'v-nvc']
+        };
+
+        let totalPoints = 0;
+        for (let key in mapping) {
+            let val = State.stats[key];
+            totalPoints += val;
+            document.getElementById(mapping[key][0]).style.width = val + '%';
+            document.getElementById(mapping[key][1]).innerText = val + '%';
+        }
+
+        // Ranga gracza
+        let rank = "Nowicjusz";
+        if (totalPoints > 80) rank = "Świadomy Obserwator";
+        if (totalPoints > 160) rank = "Adept Psychologii";
+        if (totalPoints > 240) rank = "Mistrz Relacji";
+        if (totalPoints > 320) rank = "Magnetyczna Osobowość";
+        
+        document.getElementById('u-rank').innerText = "Ranga: " + rank;
+        
+        // Obliczanie ogólnego postępu gry (zależne od odblokowanych modułów)
+        let progress = Math.floor((State.unlockedModules.length / 7) * 100);
+        // Jeśli jesteśmy w module 7 i go skończymy, to 100%
+        if(State.unlockedModules.includes(7) && State.currentScene === 'end_game') progress = 100;
+        document.getElementById('game-progress').innerText = progress + '%';
+
+        // Tagi wiedzy (Traits)
+        const traitBox = document.getElementById('u-traits');
+        if (State.traits.length > 0) {
+            traitBox.innerHTML = '';
+            State.traits.forEach(trait => {
+                const span = document.createElement('span');
+                span.className = 'tag';
+                span.innerText = trait;
+                traitBox.appendChild(span);
+            });
+        } else {
+            traitBox.innerHTML = '<span class="tag" style="opacity:0.5; font-style:italic;">Brak...</span>';
+        }
+    }
+
+    // Obsługa ekranu wyboru modułów
+    function showModuleSelect(show) {
+        const screen = document.getElementById('module-select-screen');
+        const list = document.getElementById('module-list');
+        
+        if (show) {
+            list.innerHTML = '';
+            ModulesData.forEach(mod => {
+                const isUnlocked = State.unlockedModules.includes(mod.id);
+                const card = document.createElement('div');
+                card.className = `module-card ${isUnlocked ? '' : 'locked'}`;
+                card.innerHTML = `
+                    <div class="progress-indicator">${isUnlocked ? 'DOSTĘPNY' : 'ZABLOKOWANY'}</div>
+                    <h4>Moduł ${mod.id}</h4>
+                    <h3>${mod.title}</h3>
+                    <p>${mod.desc}</p>
+                `;
+                if (isUnlocked) {
+                    card.onclick = () => {
+                        showModuleSelect(false);
+                        loadScene(mod.scene);
+                    };
+                }
+                list.appendChild(card);
+            });
+            screen.style.visibility = 'visible';
+            screen.style.opacity = 1;
+        } else {
+            screen.style.opacity = 0;
+            setTimeout(() => screen.style.visibility = 'hidden', 500);
+        }
+    }
+
+    // Ładowanie sceny
+    function loadScene(sceneId) {
+        const scene = Scenes[sceneId];
+        if (!scene) return console.error("CRITICAL: Brak sceny " + sceneId);
+        State.currentScene = sceneId;
+
+        // Odblokowywanie modułów
+        if (scene.unlockModule && !State.unlockedModules.includes(scene.unlockModule)) {
+            State.unlockedModules.push(scene.unlockModule);
+            // Powiadomienie wizualne (opcjonalnie)
+        }
+
+        const card = document.getElementById('story-card');
+        card.style.opacity = 0;
+        card.style.transform = 'translateY(20px)';
+
+        setTimeout(() => {
+            document.getElementById('s-chapter').innerText = scene.chapter || 'MASTERCLASS';
+            document.getElementById('s-title').innerText = scene.title;
+
+            const feedbackArea = document.getElementById('feedback-area');
+            const mainText = document.getElementById('s-text');
+
+            if (scene.isFeedback) {
+                feedbackArea.innerHTML = `
+                    <div class="feedback-box">
+                        <div class="feedback-title">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                            ANALIZA MENTORA
+                        </div>
+                        <div>${parse(scene.feedbackText)}</div>
+                    </div>
+                `;
+                mainText.style.display = 'none';
+            } else {
+                feedbackArea.innerHTML = '';
+                mainText.style.display = 'block';
+                let content = parse(scene.text);
+                if (scene.source) {
+                    content += `<span class="source-cite">📖 Źródło naukowe: ${scene.source}</span>`;
+                }
+                mainText.innerHTML = content;
+            }
+
+            const choicesArea = document.getElementById('choices-area');
+            choicesArea.innerHTML = '';
+
+            if (scene.choices) {
+                scene.choices.forEach(c => {
+                    const btn = document.createElement('div');
+                    btn.className = 'btn-choice';
+                    btn.innerHTML = parse(c.text);
+                    btn.onclick = () => makeChoice(c);
+                    choicesArea.appendChild(btn);
+                });
+            } else if (scene.next) {
+                const btn = document.createElement('div');
+                btn.className = 'btn-choice';
+                btn.innerHTML = "<strong>Kontynuuj...</strong>";
+                btn.onclick = () => loadScene(scene.next);
+                choicesArea.appendChild(btn);
+            }
+
+            updateUI();
+            card.style.opacity = 1;
+            card.style.transform = 'translateY(0)';
+            document.querySelector('.stage-area').scrollTop = 0;
+
+        }, 400);
+    }
+
+    function makeChoice(choice) {
+        if (choice.impact) {
+            for (let key in choice.impact) {
+                if (State.stats[key] !== undefined) {
+                    State.stats[key] += choice.impact[key];
+                    if (State.stats[key] > 100) State.stats[key] = 100;
+                    if (State.stats[key] < 0) State.stats[key] = 0;
+                }
+            }
+        }
+        if (choice.addTrait && !State.traits.includes(choice.addTrait)) {
+            State.traits.push(choice.addTrait);
+        }
+        loadScene(choice.next);
+    }
+
+    // Start
+    function initGame() {
+        document.getElementById('intro-screen').style.opacity = 0;
+        setTimeout(() => document.getElementById('intro-screen').style.visibility = 'hidden', 1000);
+        
+        document.getElementById('game-container').style.visibility = 'visible';
+        document.getElementById('game-container').style.opacity = 1;
+        
+        loadScene('intro_00');
+    }
+
+    /* ==========================================================================
+       SCENARIUSZ MASTERCLASS (ROZBUDOWANY)
+       ========================================================================== */
+    const Scenes = {
+        
+        // === INTRO: PROFILOWANIE ===
+        'intro_00': {
+            chapter: 'Wprowadzenie',
+            title: 'Witaj w LVLY Masterclass',
+            text: `Każdy z nas pragnie być rozumiany, doceniany i kochany. To nie jest słabość. To biologiczny imperatyw.
+            
+Ale zanim ktoś inny nas zrozumie, musimy najpierw zrozumieć siebie. Ten kurs to nie zbiór trików na podryw. To **psychologiczna inżynieria wsteczna** Twoich relacji.
+            
+Przejdziemy drogę od lęku i zamknięcia, przez budowanie prawdziwej pewności siebie, aż po moment, w którym naturalnie przyciągasz ludzi.
+            
+Nie używamy magii. Używamy neurobiologii. Jesteś gotowy?`,
+            next: 'intro_profile_01'
+        },
+        'intro_profile_01': {
+            chapter: 'Profilowanie',
+            title: 'Twoja Blokada',
+            text: `Zanim zaczniemy, muszę wiedzieć, z czym startujesz.
+            
+Wyobraź sobie sytuację społeczną, która Cię stresuje. Może to wejście na imprezę pełną obcych ludzi, a może trudna rozmowa z szefem.
+            
+Co jest Twoim największym, wewnętrznym hamulcem? Co szepcze Twój "Wewnętrzny Krytyk"?`,
+            choices: [
+                { 
+                    text: "„Boję się odrzucenia. Że powiem coś głupiego i mnie wyśmieją.” (Lęk przed oceną)", 
+                    next: 'intro_profile_res_fear', 
+                    impact: { auth: -5 },
+                    addTrait: "Profil: Wrażliwość na Ocenę"
+                },
+                { 
+                    text: "„Czuję, że muszę grać kogoś innego, żeby mnie polubili. Moje prawdziwe ja jest nudne.” (Syndrom Oszusta)", 
+                    next: 'intro_profile_res_fake', 
+                    impact: { auth: -10 },
+                    addTrait: "Profil: Maska Adaptacyjna"
+                },
+                { 
+                    text: "„Wolę się nie angażować. Ludzie i tak zawodzą, więc po co próbować?” (Unikanie/Chłód)", 
+                    next: 'intro_profile_res_cold', 
+                    impact: { eq: -5 },
+                    addTrait: "Profil: Zbroja Ochronna"
+                }
+            ]
+        },
+        'intro_profile_res_fear': {
+            chapter: 'Analiza Startowa', title: 'Diagnoza: Lęk Społeczny', isFeedback: true,
+            feedbackText: `To klasyczny mechanizm ewolucyjny. Twój mózg traktuje odrzucenie społeczne tak samo jak ból fizyczny. W czasach plemiennych odrzucenie oznaczało śmierć. Dziś oznacza tylko dyskomfort, ale Twój układ limbiczny o tym nie wie. W tym kursie nauczymy Twój mózg, że **bycie sobą jest bezpieczne**.`,
+            next: 'm1_start'
+        },
+        'intro_profile_res_fake': {
+            chapter: 'Analiza Startowa', title: 'Diagnoza: Utrata Autentyczności', isFeedback: true,
+            feedbackText: `To wyczerpująca strategia. Udawanie kogoś innego zużywa ogromne zasoby energii kognitywnej. Dlatego po spotkaniach czujesz się taki zmęczony. Twoim celem w tym kursie będzie zdjęcie maski i odkrycie, że Twoje "prawdziwe ja" jest o wiele bardziej magnetyczne niż ta rola, którą grasz.`,
+            next: 'm1_start'
+        },
+        'intro_profile_res_cold': {
+            chapter: 'Analiza Startowa', title: 'Diagnoza: Styl Unikający', isFeedback: true,
+            feedbackText: `Zbudowałeś mur, żeby nie zostać zranionym. To działa – nikt Cię nie rani. Ale nikt też Cię nie widzi. Unikanie daje bezpieczeństwo, ale zabiera bliskość. W tym kursie nauczysz się uchylać drzwi, zachowując kontrolę nad tym, kogo wpuszczasz.`,
+            next: 'm1_start'
+        },
+
+        // === MODUŁ 1: ARCHITEKTURA UMYSŁU ===
+        'm1_start': {
+            chapter: 'Moduł 1: Fundamenty',
+            title: 'Skąd bierze się niepewność?',
+            text: `Witaj w Module 1. Zaczynamy od fundamentów.
+            
+Nieśmiałość czy lęk przed otwarciem nie są cechami Twojego charakteru. Są **nawykowymi reakcjami**, których się nauczyłeś.
+            
+Psycholog Aaron T. Beck odkrył "Schematy Poznawcze". Jeśli jako dziecko słyszałeś:
+*„Nie przeszkadzaj”*
+*„Nie wychylaj się”*
+*„Co ludzie powiedzą?”*
+            
+...to Twój mózg zapisał algorytm: **AUTOEKSPRESJA = ZAGROŻENIE.**`,
+            source: 'Beck, A. T. (1979). Cognitive Therapy and the Emotional Disorders.',
+            next: 'm1_deep_dive_1'
+        },
+        'm1_deep_dive_1': {
+            chapter: 'Moduł 1: Teoria',
+            title: 'Pętla Przekonań',
+            text: `Ten algorytm działa w tle jak wirus.
+            
+1. **Sytuacja:** Chcesz zagadać do kogoś.
+2. **Schemat:** "Nie wychylaj się, bo cię odrzucą".
+3. **Emocja:** Lęk, ścisk w gardle.
+4. **Zachowanie:** Milczysz lub wycofujesz się.
+            
+Efekt? Schemat się potwierdza ("Uff, uniknąłem zagrożenia"). Aby to zmienić, musimy przerwać pętlę w punkcie 3: **Emocji**.`,
+            next: 'm1_exercise_mirror'
+        },
+        'm1_exercise_mirror': {
+            chapter: 'Moduł 1: Praktyka',
+            title: 'Ćwiczenie: Lustro Prawdy',
+            text: `To jest najważniejsze ćwiczenie tego modułu. Nie pomijaj go.
+            
+Wyobraź sobie, że stoisz przed lustrem. Patrzysz sobie głęboko w oczy. Zadajesz sobie brutalnie szczere pytanie:
+            
+**„Co tak naprawdę czuję, kiedy mam pokazać światu swoją prawdziwą twarz?”**
+            
+Większość ludzi ucieka od odpowiedzi. Ty zostań. Co wypływa pierwsze?`,
+            choices: [
+                { 
+                    text: "Głęboki STRACH. Że jeśli zobaczą mnie naprawdę, to odejdą.", 
+                    next: 'm1_mirror_fear', 
+                    impact: { auth: 10 },
+                    addTrait: "Wgląd: Lęk Odrzucenia"
+                },
+                { 
+                    text: "Palący WSTYD. Czuję się gorszy, wybrakowany.", 
+                    next: 'm1_mirror_shame', 
+                    impact: { auth: 10, eq: 5 },
+                    addTrait: "Wgląd: Wstyd Toksyczny"
+                },
+                { 
+                    text: "ZŁOŚĆ i BUNT. Dlaczego muszę się tak starać?!", 
+                    next: 'm1_mirror_anger', 
+                    impact: { auth: 5, nvc: 5 },
+                    addTrait: "Wgląd: Gniew Obronny"
+                }
+            ]
+        },
+        'm1_mirror_fear': {
+            chapter: 'Analiza Psychologiczna', title: 'Odkodowanie: Strach', isFeedback: true,
+            feedbackText: `To, co zrobiłeś, to **Etykietowanie Afektu**. Badania (Lieberman, 2018) pokazują, że nazwanie strachu słowami ("To jest strach") przekierowuje krew z ciała migdałowatego (panika) do kory przedczołowej (logika). Właśnie odzyskałeś kontrolę. Twój strach to tylko informacja, a nie wyrok.`,
+            source: 'Lieberman, M. D. et al. (2018). Psychological Science.',
+            next: 'm1_boundaries'
+        },
+        'm1_mirror_shame': {
+            chapter: 'Analiza Psychologiczna', title: 'Odkodowanie: Wstyd', isFeedback: true,
+            feedbackText: `Wstyd to emocja, która rośnie w ciemności. Kiedy wyciągasz ją na światło dzienne i nazywasz ("Czuję wstyd"), ona traci moc. Pamiętaj: Wstyd to kłamstwo, które mówi Ci, że nie zasługujesz na przynależność. Nazwanie go to pierwszy krok do wolności.`,
+            next: 'm1_boundaries'
+        },
+        'm1_mirror_anger': {
+            chapter: 'Analiza Psychologiczna', title: 'Odkodowanie: Złość', isFeedback: true,
+            feedbackText: `Złość jest "strażnikiem". Mówi Ci, że Twoje granice były zbyt długo łamane. To cenna energia! Nie tłum jej. W dalszych modułach nauczymy się, jak przekuć tę złość w asertywność, zamiast w agresję.`,
+            next: 'm1_boundaries'
+        },
+        'm1_boundaries': {
+            chapter: 'Moduł 1: Integracja',
+            title: '1.3. Zrozumienie Granic',
+            text: `Zanim przejdziesz do budowania pewności siebie, musisz zrozumieć jedną rzecz.
+            
+Otwartość to nie jest "mówienie o wszystkim każdemu". To nazywa się **Oversharing** (nadmierne dzielenie się) i wynika z lęku, a nie z siły.
+            
+Prawdziwa Autentyczność to:
+**"Mówienie prawdy o sobie z szacunkiem do siebie."**
+            
+Jesteś gotowy, by zbudować na tym fundamencie swoją pewność siebie?`,
+            choices: [
+                { text: "Tak, jestem gotowy na Moduł 2.", next: 'm2_start', impact: { auth: 5 } }
+            ]
+        },
+		// === MODUŁ 2: BIO-HACKING PEWNOŚCI SIEBIE (DEEP DIVE) ===
+        'm2_start': {
+            chapter: 'Moduł 2: Architektura Siły',
+            title: 'Mit "Udawania"',
+            text: `Wchodzisz w drugi etap transformacji. Temat: **Prawdziwa Pewność Siebie.**
+            
+Zapomnij o radach typu "fake it till you make it" (udawaj, aż ci się uda). To najgorsza rada, jaką można dać osobie niepewnej siebie. Dlaczego?
+            
+Bo jeśli w środku czujesz lęk, a na zewnątrz nakładasz maskę "samca alfa" lub "kobiety sukcesu", tworzysz w sobie **Dysonans Poznawczy**. Twój układ nerwowy wariuje, bo musi podtrzymywać kłamstwo. To zabiera 80% Twojej energii.
+            
+Prawdziwa pewność siebie to **SPÓJNOŚĆ (Coherence)**. To stan, w którym Twoje ciało, myśli i emocje grają w jednej drużynie.`,
+            next: 'm2_science_autonomy'
+        },
+        'm2_science_autonomy': {
+            chapter: 'Moduł 2: Teoria',
+            title: 'Fundament: Autonomia',
+            text: `Psychologowie Deci i Ryan w przełomowej **Teorii Autodeterminacji** udowodnili, że ludzka motywacja opiera się na trzech filarach. Najważniejszym z nich dla pewności siebie jest **AUTONOMIA**.
+            
+Autonomia to poczucie, że jesteś autorem własnych działań. Że robisz coś, bo Ty tak wybierasz, a nie dlatego, że "wypada" lub "trzeba".
+            
+Kiedy działasz w zgodzie ze sobą, Twój mózg nagradza Cię dopaminą. Kiedy działasz pod publikę, mózg zalewa Cię kortyzolem (stresem).
+            
+Zanim przejdziemy do technik, musimy "zhakować" Twoją biologię.`,
+            source: 'Deci, E. L., & Ryan, R. M. (2000). Self-Determination Theory.',
+            next: 'm2_bio_intro',
+            unlockModule: 2
+        },
+        'm2_bio_intro': {
+            chapter: 'Moduł 2: Bio-Hacking',
+            title: 'Pętla Ciało-Umysł',
+            text: `Większość ludzi myśli, że proces wygląda tak:
+            *Czuję się pewnie (Umysł) -> Więc prostuję plecy (Ciało).*
+            
+Badania z Harvardu (Amy Cuddy, 2012) wywróciły to do góry nogami. Proces jest dwukierunkowy.
+            
+Twój nerw błędny (Vagus Nerve) nieustannie skanuje postawę Twojego ciała.
+            * Jeśli się kulisz -> Nerw błędny wysyła sygnał: "Zagrożenie! Produkuj kortyzol!"
+            * Jeśli zajmujesz przestrzeń -> Nerw błędny wysyła sygnał: "Dominacja/Bezpieczeństwo! Produkuj testosteron!"
+            
+Możesz zmienić chemię swojego mózgu w **120 sekund**. Sprawdźmy to w symulacji wysokiego ryzyka.`,
+            source: 'Cuddy, A. J. C. (2012). Presence: Bringing Your Boldest Self.',
+            next: 'm2_sim_scenario'
+        },
+        'm2_sim_scenario': {
+            chapter: 'Symulacja: Stres',
+            title: 'Poczekalnia',
+            text: `Jesteś w poczekalni. Za 5 minut masz wejść na rozmowę, która może zmienić Twoje życie (wymarzona praca, kluczowy klient, lub randka z kimś "poza Twoją ligą").
+            
+Skanujesz swoje ciało:
+* Dłonie są zimne i wilgotne.
+* Serce bije szybciej.
+* W głowie masz gonitwę myśli: *"A co jeśli się zbłaźnię?", "Nie jestem gotowy"*.
+            
+To klasyczna reakcja "Walcz lub Uciekaj". Masz 2 minuty. Co robisz ze swoim ciałem?`,
+            choices: [
+                { 
+                    text: "Siadam na krześle, zakładam nogę na nogę, wyciągam telefon i scrolluję social media, żeby odwrócić uwagę od stresu.", 
+                    next: 'm2_res_phone', 
+                    impact: { coherence: -5, auth: -2 },
+                    addTrait: "Nawyk: Ucieczka w ekran"
+                },
+                { 
+                    text: "Idę do łazienki. Staję przed lustrem w 'Pozycji Zwycięzcy' (ręce w górze w kształcie V lub na biodrach). Oddycham głęboko do przepony.", 
+                    next: 'm2_res_power', 
+                    impact: { coherence: 15, auth: 5 },
+                    addTrait: "Technika: Power Posing"
+                }
+            ]
+        },
+        'm2_res_phone': {
+            chapter: 'Analiza Symulacji',
+            title: 'Pułapka Komfortu',
+            isFeedback: true,
+            feedbackText: `Wybrałeś strategię unikania. To naturalne, ale kosztowne.
+            <br><br>
+            Kiedy garbisz się nad telefonem, Twoja klatka piersiowa jest zamknięta. Płuca nie mogą nabrać pełnego oddechu. Poziom tlenu spada. Mózg interpretuje to jako **stan zagrożenia**.
+            <br><br>
+            W efekcie: Wchodzisz na spotkanie z wysokim poziomem kortyzolu. Twój głos będzie wyższy, mniej pewny. Ludzie podświadomie wyczują Twoją "niższą rangę".`,
+            next: 'm2_vulnerability_intro'
+        },
+        'm2_res_power': {
+            chapter: 'Analiza Symulacji',
+            title: 'Efekt Biochemiczny',
+            isFeedback: true,
+            feedbackText: `Doskonała decyzja. Choć na początku czułeś się głupio stojąc tak w łazience, po 2 minutach nastąpiła zmiana fizjologiczna.
+            <br><br>
+            1. **Testosteron w górę (+20%)**: Czujesz większą sprawczość i gotowość do rywalizacji.<br>
+            2. **Kortyzol w dół (-25%)**: Twój umysł się wyciszył. Panika zniknęła.
+            <br><br>
+            Wchodzisz na spotkanie nie jako ofiara, która prosi o szansę, ale jako partner, który ma coś do zaoferowania.`,
+            next: 'm2_vulnerability_intro'
+        },
+        
+        'm2_vulnerability_intro': {
+            chapter: 'Moduł 2: Zaawansowane',
+            title: 'Paradoks Drżącego Głosu',
+            text: `Jesteś już na spotkaniu. Twoje ciało jest przygotowane, ale umysł wciąż może płatać figle.
+            
+Największy mit pop-psychologii brzmi: *"Pewność siebie to brak strachu"*.
+**BZDURA.** Brak strachu to psychopatia.
+            
+Prawdziwa pewność siebie (Odwaga) to działanie **pomimo** strachu. I tu dochodzimy do Twojej najpotężniejszej broni: **Odsłonięcia (Vulnerability)**.
+            
+Ludzie ufają tym, którzy są prawdziwi. Jeśli próbujesz ukryć zdenerwowanie, ludzie widzą "mikro-ekspresje" fałszu. Odbierają Cię jako nieszczerego.`,
+            source: 'Brown, B. (2012). Daring Greatly.',
+            next: 'm2_sim_crisis'
+        },
+        'm2_sim_crisis': {
+            chapter: 'Symulacja: Kryzys',
+            title: 'Niewygodne Pytanie',
+            text: `Rozmowa trwa. Nagle druga strona zadaje Ci pytanie, które trafia w Twój czuły punkt. Może to być:
+            *"Dlaczego masz przerwę w CV?"*
+            *"Dlaczego wciąż jesteś singlem?"*
+            *"Wydajesz się spięty, coś nie tak?"*
+            
+Czujesz, jak krew uderza Ci do twarzy. Gardło się zaciska. Ręce zaczynają drżeć. Masz ułamek sekundy na reakcję. Co robisz?`,
+            choices: [
+                { 
+                    text: "Zakładam 'Kamienną Twarz'. Silę się na luzacki uśmiech i wymyślam wymijającą odpowiedź, byle nie pokazać, że mnie to ruszyło.", 
+                    next: 'm2_res_mask', 
+                    impact: { auth: -10, coherence: -5 } 
+                },
+                { 
+                    text: "Biorę oddech, patrzę w oczy i mówię: „Szczerze? To pytanie mnie trochę zestresowało, bo bardzo mi zależy. Daj mi sekundę na zebranie myśli.”", 
+                    next: 'm2_res_truth', 
+                    impact: { auth: 20, coherence: 10, eq: 5 },
+                    addTrait: "Supermoc: Odsłonięcie"
+                }
+            ]
+        },
+        'm2_res_truth': {
+            chapter: 'Analiza Symulacji',
+            title: 'Rozbrojenie Bomby',
+            isFeedback: true,
+            feedbackText: `To był mistrzowski ruch. Zrobiłeś coś, czego boi się 99% ludzi – **zdemaskowałeś własny stres**.
+            <br><br>
+            Efekt?
+            1. **Dla Ciebie:** Napięcie natychmiast opada, bo przestałeś walczyć z rzeczywistością.
+            2. **Dla Rozmówcy:** Widzi człowieka, a nie robota. Budzisz szacunek i empatię. Pomyśl: komu ufasz bardziej? Temu, kto udaje idealnego, czy temu, kto ma odwagę być prawdziwy?`,
+            next: 'm2_daily_routine'
+        },
+        'm2_res_mask': {
+            chapter: 'Analiza Symulacji',
+            title: 'Mur Nieufności',
+            isFeedback: true,
+            feedbackText: `Wybrałeś bezpieczną opcję, ale straciłeś połączenie.
+            <br><br>
+            Twój rozmówca widzi, że się spiąłeś, ale słyszy "wyluzowane" słowa. Ten dysonans sprawia, że zapala mu się w głowie czerwona lampka: *"Coś tu nie gra. On/Ona coś ukrywa"*.
+            <br><br>
+            Pamiętaj: Twoje wady są bardziej atrakcyjne niż Twoja perfekcja, bo są **prawdziwe**.`,
+            next: 'm2_daily_routine'
+        },
+        'm2_daily_routine': {
+            chapter: 'Moduł 2: Wdrożenie',
+            title: 'Rutyna Pewności',
+            text: `Zakończmy ten moduł konkretnym planem. Pewność siebie to nie cecha wrodzona. To mięsień.
+            
+Oto Twoja "siłownia" na najbliższe dni:
+            
+1. **Rano:** 2 minuty Power Pose przed lustrem. Ustawiasz hormony na cały dzień.
+2. **Wyzwanie:** Raz dziennie powiedz prawdę o tym, jak się czujesz, zamiast "wszystko ok".
+3. **Mantra:** *"Dziś wybieram, żeby być sobą – to wystarczy."*
+            
+Kiedy poczujesz, że to opanowałeś, będziemy gotowi przejść do interakcji z innymi ludźmi.`,
+            choices: [
+                { text: "Zrozumiałem. Jestem gotowy na Moduł 3 (Komunikacja).", next: 'm3_start', impact: { coherence: 5 } }
+            ]
+        },
+		// === MODUŁ 3: KOMUNIKACJA I SŁUCHANIE (MASTERCLASS) ===
+        'm3_start': {
+            chapter: 'Moduł 3: Alchemia Połączenia',
+            title: 'Mit "Dobrego Gadane"',
+            text: `Wchodzimy w strefę relacji międzyludzkich.
+            
+Większość ludzi myśli, że bycie "dobrym w relacjach" oznacza, że potrafisz sypać anegdotami, być duszą towarzystwa i zagadać każdego na śmierć.
+            
+To kompletna bzdura. To jest **EGO**, a nie relacja.
+            
+Prawdziwy magnetyzm nie polega na tym, żebyś Ty był interesujący. Polega na tym, żebyś sprawił, by **druga osoba poczuła się interesująca**.
+            
+Kluczem jest **Radykalna Obecność**.`,
+            next: 'm3_rogers_theory',
+            unlockModule: 3
+        },
+        'm3_rogers_theory': {
+            chapter: 'Moduł 3: Teoria',
+            title: '3.1. Aktywne Słuchanie',
+            text: `Carl Rogers, ojciec psychologii humanistycznej, odkrył coś fascynującego:
+            
+**„Bycie głęboko wysłuchanym jest dla ludzkiego mózgu niemal nieodróżnialne od bycia kochanym.”**
+            
+Większość ludzi nie słucha. Oni tylko **czekają na swoją kolej, żeby mówić**. W trakcie gdy Ty mówisz, oni w głowie układają już swoją odpowiedź ("O, ja też tak miałem!").
+            
+Aktywne słuchanie to wyciszenie swojego "Ja" i wejście w świat drugiej osoby. Wymaga to:
+1. ** Kontaktu wzrokowego** (ale miękkiego, nie policyjnego).
+2. **Parafrazy** (odbijania tego, co usłyszałeś).
+3. **Braku oceny** (akceptacji).`,
+            source: 'Rogers, C. R. (1951). Client-Centered Therapy.',
+            next: 'm3_sim_friend_intro'
+        },
+        'm3_sim_friend_intro': {
+            chapter: 'Symulacja: Empatia',
+            title: 'Spotkanie z Markiem',
+            text: `Przetestujmy Twoje EQ w praktyce.
+            
+Spotykasz się na kawę z Markiem, starym znajomym. Zawsze był wesoły, ale dziś wygląda fatalnie. Jest zgarbiony, unika wzroku, bawi się nerwowo serwetką.
+            
+Po 10 minutach luźnej gadki, nagle pęka:
+*„Wiesz co... chyba rzucę te studia. Nie widzę w tym sensu. Czuję się wypalony, a ojciec mnie zabije, jak się dowie. Nie wiem, co robić, czuję się jak w pułapce.”*
+            
+Twój instynkt podpowiada Ci reakcję. Co robisz?`,
+            choices: [
+                { 
+                    text: "TRYB NAPRAWIACZA: „Stary, nie przesadzaj! Każdy ma kryzys. Moim zdaniem powinieneś iść na siłownię, odpocząć i ci przejdzie. Nie możesz się poddać, pomyśl o przyszłości!”", 
+                    next: 'm3_res_fixer', 
+                    impact: { eq: -10, auth: -5 },
+                    addTrait: "Błąd: Nieproszona Rada"
+                },
+                { 
+                    text: "TRYB BOHATERA: „O, ja miałem to samo rok temu! Mówię ci, była masakra, ale zrobiłem taki kurs i mi przeszło. Posłuchaj mojej historii...”", 
+                    next: 'm3_res_hero', 
+                    impact: { eq: -15 },
+                    addTrait: "Błąd: Przejęcie Rozmowy"
+                },
+                { 
+                    text: "TRYB LUSTRA: Pochylam się, patrzę w oczy i mówię cicho: „Czekaj... czyli czujesz się totalnie wypalony, ale najbardziej boisz się tego, że zawiedziesz ojca? Dobrze cię rozumiem?”", 
+                    next: 'm3_res_mirror', 
+                    impact: { eq: 25, auth: 10 },
+                    addTrait: "Mastery: Parafraza"
+                }
+            ]
+        },
+        'm3_res_mirror': {
+            chapter: 'Analiza Symulacji',
+            title: 'Magia Zrozumienia',
+            isFeedback: true,
+            feedbackText: `Marek podnosi wzrok. Widzisz, jak jego ramiona opadają (relaks).
+            <br>
+            *„Dokładnie tak... Właśnie o ojca chodzi.”* – odpowiada.
+            <br><br>
+            To jest moment przełomowy. Nie rozwiązałeś jego problemu, ale zrobiłeś coś ważniejszego: **zbudowałeś więź**. Zastosowałeś Parafrazę. Marek czuje się "widziany". Poziom jego stresu spada, a zaufanie do Ciebie rośnie w kosmos. Teraz sam znajdzie rozwiązanie, bo czuje wsparcie.`,
+            next: 'm3_opener_intro'
+        },
+        'm3_res_fixer': {
+            chapter: 'Analiza Symulacji',
+            title: 'Blokada Empatyczna',
+            isFeedback: true,
+            feedbackText: `Twoja intencja była dobra (chciałeś pomóc), ale efekt jest fatalny.
+            <br><br>
+            Mówiąc *"nie przesadzaj"*, unieważniłeś jego uczucia. Mówiąc *"powinieneś"*, postawiłeś się wyżej od niego (w roli mądrzejszego rodzica).
+            <br><br>
+            Efekt? Marek zamyka się w sobie. *"No, może masz rację..."* – mówi i zmienia temat na pogodę. Straciłeś szansę na głęboką rozmowę.`,
+            next: 'm3_opener_intro'
+        },
+        'm3_res_hero': {
+            chapter: 'Analiza Symulacji',
+            title: 'Narcyzm Konwersacyjny',
+            isFeedback: true,
+            feedbackText: `To najczęstszy błąd w komunikacji. Socjolog Charles Derber nazywa to **"Przejęciem Narcystycznym"**.
+            <br><br>
+            Marek otworzył przed Tobą serce, a Ty wykorzystałeś to jako okazję, by opowiedzieć o sobie. Marek czuje się teraz podwójnie samotny – nie dość, że ma problem, to jeszcze musi słuchać Twojej historii sukcesu.`,
+            next: 'm3_opener_intro'
+        },
+
+        'm3_opener_intro': {
+            chapter: 'Moduł 3: Social Skills',
+            title: '3.2. Rozpoczynanie Rozmowy',
+            text: `Przejdźmy do kontaktów z nowymi ludźmi.
+            
+Wielu moich studentów pyta: *"Jaki jest najlepszy tekst na podryw/rozpoczęcie rozmowy?"*.
+            
+Odpowiedź brzmi: **Nie ma tekstów. Jest kontekst.**
+            
+Ludzie komunikują się głównie niewerbalnie (zasada 7-38-55 Mehrabiana). Jeśli Twoja energia jest spójna, możesz powiedzieć cokolwiek. Ale najbezpieczniejszą drogą jest **Wspólny Kontekst**.`,
+            source: 'Mehrabian, A. (1971). Silent Messages.',
+            next: 'm3_sim_stranger'
+        },
+        'm3_sim_stranger': {
+            chapter: 'Symulacja: Small Talk',
+            title: 'Kawiarnia / Networking',
+            text: `Stoisz w długiej kolejce po kawę (lub rejestrację na konferencję). Obok stoi interesująca osoba, która też nerwowo zerka na zegarek. Chcesz nawiązać kontakt.
+            
+Jak zagadujesz, żeby nie wyjść na dziwaka?`,
+            choices: [
+                { 
+                    text: "METODA SZOKOWA: Zbieram się w sobie, podchodzę blisko i wypalam: „Cześć, wierzysz w przeznaczenie? Bo ja chyba tak.”", 
+                    next: 'm3_open_shock', 
+                    impact: { eq: -5, coherence: -5 } 
+                },
+                { 
+                    text: "METODA OBSERWATORA: Uśmiecham się lekko, nawiązuję krótki kontakt wzrokowy, wskazuję na kolejkę i mówię luźno: „Widzę, że też tu utknęłaś. Chyba mamy pecha co do pory dnia, co?”", 
+                    next: 'm3_open_context', 
+                    impact: { eq: 10, coherence: 10, auth: 5 },
+                    addTrait: "Narzędzie: Opener Kontekstowy"
+                }
+            ]
+        },
+        'm3_open_context': {
+            chapter: 'Analiza Symulacji',
+            title: 'Naturalny Przepływ',
+            isFeedback: true,
+            feedbackText: `Perfekcyjnie. Dlaczego to zadziałało?
+            <br>
+            1. **Bezpieczeństwo:** Skomentowałeś sytuację zewnętrzną (kolejkę), a nie osobę. To nie jest inwazyjne.<br>
+            2. **Wspólnota:** Stworzyłeś "my" (my stoimy w kolejce) przeciwko "temu" (kolejce).<br>
+            3. **Pytanie:** Zakończyłeś pytaniem, co ułatwia odpowiedź.
+            <br><br>
+            Osoba odpowiada z uśmiechem: *"Tragedia, spóźnię się do pracy!"*. Jesteś w rozmowie.`,
+            next: 'm4_start'
+        },
+        'm3_open_shock': {
+            chapter: 'Analiza Symulacji',
+            title: 'Dysonans Społeczny',
+            isFeedback: true,
+            feedbackText: `Aua. To wywołało ciarki żenady (cringe).
+            <br><br>
+            Tekst był "wyreżyserowany" i zbyt intymny jak na obcą osobę w kolejce po latte. Złamałeś zasadę kalibracji społecznej. Osoba prawdopodobnie uda, że sprawdza telefon, żeby uciec z tej interakcji. Pamiętaj: **Luz > Skrypt.**`,
+            next: 'm4_start'
+        },
+
+        // === MODUŁ 4: BUDOWANIE GŁĘBOKICH RELACJI ===
+        'm4_start': {
+            chapter: 'Moduł 4: Więź',
+            title: 'Architektura Zaufania',
+            text: `Potrafisz już być pewny siebie (M2) i potrafisz rozmawiać (M3). Teraz pytanie: jak zamienić znajomość w przyjaźń lub miłość?
+            
+Kluczem jest **ZAUFANIE**.
+            
+John Gottman, który badał pary przez 40 lat w swoim "Laboratorium Miłości", odkrył, że zaufanie nie buduje się przez wielkie gesty (np. kupienie samochodu czy uratowanie z pożaru).
+            
+Zaufanie buduje się w **Mikro-Momentach (Sliding Door Moments)**.
+            
+To setki drobnych decyzji dziennie: czy odwrócisz się DO partnera/przyjaciela, czy OD niego.`,
+            source: 'Gottman, J. M. (2015). The Seven Principles for Making Marriage Work.',
+            next: 'm4_sim_trust',
+            unlockModule: 4
+        },
+        'm4_sim_trust': {
+            chapter: 'Symulacja: Zaufanie',
+            title: 'Test Słowności',
+            text: `To jest klasyczny test charakteru.
+            
+Umówiłeś się z Kają (osobą, na której relacji Ci zależy) na pomoc w ważnym projekcie o 18:00. Kaja jest zestresowana, liczy na Ciebie.
+            
+Jest 17:50. Utknąłeś w gigantycznym korku. Nawigacja pokazuje, że spóźnisz się minimum 25 minut.
+            
+Co robisz? Wybierz szczerze.`,
+            choices: [
+                { 
+                    text: "MILCZENIE: Stresuję się, ale nic nie piszę. Liczę na cud. Jak dojadę spóźniony, powiem: „Sorki, straszny korek, siła wyższa”.", 
+                    next: 'm4_res_silent', 
+                    impact: { coherence: -10, auth: -5 } 
+                },
+                { 
+                    text: "PROAKTYWNOŚĆ: Dzwonię/piszę natychmiast: „Kaja, przepraszam, utknąłem. Będę 18:25. Wiem, że to dla ciebie ważne, więc zaczniemy od razu jak wpadnę.”", 
+                    next: 'm4_res_proactive', 
+                    impact: { coherence: 15, auth: 10, eq: 5 },
+                    addTrait: "Cnota: Słowność"
+                }
+            ]
+        },
+        'm4_res_proactive': {
+            chapter: 'Analiza Symulacji',
+            title: 'Zaufanie przez Kryzys',
+            isFeedback: true,
+            feedbackText: `Paradoksalnie – w tej sytuacji **zbudowałeś zaufanie**, mimo że nawaliłeś.
+            <br><br>
+            Dlaczego? Bo byłeś przewidywalny.
+            Zaufanie = Przewidywalność + Troska.
+            <br><br>
+            Informując ją przed czasem, pokazałeś, że szanujesz jej czas i jej nerwy. Kaja wie teraz, że nawet jak coś pójdzie nie tak, powiesz jej o tym prawdę. To fundament bezpieczeństwa emocjonalnego.`,
+            next: 'm4_deepening'
+        },
+        'm4_res_silent': {
+            chapter: 'Analiza Symulacji',
+            title: 'Erozja Zaufania',
+            isFeedback: true,
+            feedbackText: `To błąd, który popełnia 80% ludzi. Kaja czekała 25 minut w niepewności, patrząc na zegarek.
+            <br><br>
+            Twoje spóźnienie to jedno. Ale brak informacji to komunikat: *"Mój komfort (unikanie przyznania się do błędu) jest ważniejszy niż Twój spokój"*.
+            <br><br>
+            Kiedy w końcu dojeżdżasz, ona jest nie tylko zła, jest **rozczarowana**. Jej mózg zapisał: "Na nim nie można polegać".`,
+            next: 'm4_deepening'
+        },
+
+        'm4_deepening': {
+            chapter: 'Moduł 4: Praktyka',
+            title: '4.3. Pogłębianie Relacji',
+            text: `Jak przejść od "small talk" (pogody) do "deep talk" (wartości)?
+            
+Musisz nauczyć się **Odsłaniać (Vulnerability Loop)**.
+            
+Mechanizm jest taki:
+1. Ty odsłaniasz mały kawałek prawdy o sobie (ryzykujesz).
+2. Druga osoba to przyjmuje i odsłania swój kawałek.
+3. Zaufanie rośnie.
+            
+Przetestujmy to w rozmowie.`,
+            next: 'm4_sim_vulnerability'
+        },
+        'm4_sim_vulnerability': {
+            chapter: 'Symulacja: Randka/Spotkanie',
+            title: 'Pytanie o pracę',
+            text: `Jesteś na spotkaniu. Druga osoba pyta: *"A jak tam w twojej pracy?"*
+            
+Prawda jest taka, że masz gorszy okres, jesteś zmęczony i myślisz o zmianie.
+            
+Jak odpowiadasz, żeby pogłębić relację?`,
+            choices: [
+                { 
+                    text: "MASKA SUKCESU: „A, super! Wszystko idzie świetnie, mamy dużo projektów. A u ciebie?”", 
+                    next: 'm4_res_fake', 
+                    impact: { auth: -5, eq: -2 } 
+                },
+                { 
+                    text: "AUTENTYCZNOŚĆ: „Wiesz co... mam ostatnio intensywny czas. Trochę stresu, szczerze mówiąc zastanawiam się nad zmianami. Ale uczę się dużo. A ty jak się czujesz w swojej firmie?”", 
+                    next: 'm4_res_deep', 
+                    impact: { auth: 15, eq: 10, coherence: 5 },
+                    addTrait: "Narzędzie: Deep Talk"
+                }
+            ]
+        },
+        'm4_res_deep': {
+            chapter: 'Analiza Symulacji',
+            title: 'Zaproszenie do Prawdy',
+            isFeedback: true,
+            feedbackText: `Bingo. Nie narzekałeś jak ofiara, po prostu powiedziałeś prawdę o swoich uczuciach.
+            <br><br>
+            Co robi druga osoba? Czuje ulgę. Myśli: *"Uff, on też jest człowiekiem. Nie muszę udawać idealnej"*.
+            <br><br>
+            Prawdopodobnie odpowie: *"Rozumiem cię, ja też mam czasem dość..."*. Właśnie weszliście na poziom prawdziwej rozmowy.`,
+            next: 'm5_start'
+        },
+        'm4_res_fake': {
+            chapter: 'Analiza Symulacji',
+            title: 'Powierzchowność',
+            isFeedback: true,
+            feedbackText: `Odpowiedź "Wszystko super" to conversational stopper (zabójca rozmowy). Jest bezpieczna, ale nudna.
+            <br><br>
+            Druga osoba dostaje sygnał: *"Trzymamy dystans. Rozmawiamy tylko o sukcesach"*. Relacja pozostaje płytka. Jeśli chcesz bliskości, musisz zaryzykować prawdę.`,
+            next: 'm5_start'
+        },
+		// === MODUŁ 5: ENERGIA I WPŁYW SPOŁECZNY (MASTERCLASS) ===
+        'm5_start': {
+            chapter: 'Moduł 5: Niewidzialna Gra',
+            title: 'Wstęp do Energetyki',
+            text: `Wchodzisz do pokoju. Jeszcze nic nie powiedziałeś, a ludzie już coś o Tobie wiedzą.
+            
+Czy zdarzyło Ci się spotkać kogoś, kto wchodzi do sali i nagle atmosfera robi się lżejsza? Albo kogoś, kto wysysa energię, nawet gdy milczy?
+            
+To nie magia. To **Neurobiologia**.
+            
+W tym module nauczysz się zarządzać czymś, co psychologowie nazywają **"Zarażaniem Emocjonalnym" (Emotional Contagion)**. Jeśli tego nie kontrolujesz, jesteś tylko lustrem dla nastrojów innych ludzi. Czas stać się źródłem.`,
+            next: 'm5_science_mirrors',
+            unlockModule: 5
+        },
+        'm5_science_mirrors': {
+            chapter: 'Moduł 5: Nauka',
+            title: 'Neurony Lustrzane',
+            text: `W latach 90. włoscy naukowcy (zespół G. Rizzolattiego) odkryli w mózgu **Neurony Lustrzane**.
+            
+Działają one jak "Wi-Fi Emocji". Kiedy patrzysz na kogoś, kto jest zestresowany, Twój mózg symuluje ten stres u Ciebie. Kiedy patrzysz na kogoś pewnego siebie, Twój mózg "kopiuje" ten stan.
+            
+Zasada jest brutalna:
+**Osoba z najsilniejszą i najbardziej spójną rzeczywistością narzuca "ramę" reszcie grupy.**
+            
+Sprawdźmy, czy potrafisz być Termostatem, a nie Termometrem.`,
+            source: 'Rizzolatti, G., & Sinigaglia, C. (1992). Mirrors in the Brain.',
+            next: 'm5_sim_entry_intro'
+        },
+        
+        // --- SYMULACJA 1: WEJŚCIE ---
+        'm5_sim_entry_intro': {
+            chapter: 'Symulacja: Pierwsze Wrażenie',
+            title: 'Wejście do Sali',
+            text: `Jesteś zaproszony na domówkę lub spotkanie networkingowe. Nikogo tam nie znasz.
+            
+Otwierasz drzwi. W środku siedzi 6 osób. Rozmowa jest drętwa, zapadła cisza. Wszyscy są trochę spięci i niepewni. Czuć "ciężką" atmosferę.
+            
+Masz 3 sekundy na decyzję, jak wejdziesz. To ustawi Twoją pozycję w stadzie na resztę wieczoru.`,
+            choices: [
+                { 
+                    text: "STRATEGIA KAMUFLAŻU: Wchodzę cicho, unikam patrzenia na grupę, żeby ich nie stresować. Szybko siadam w wolnym kącie i wyciągam telefon.", 
+                    next: 'm5_res_cammo', 
+                    impact: { coherence: -5, auth: -5 },
+                    addTrait: "Nawyk: Wycofanie"
+                },
+                { 
+                    text: "STRATEGIA LIDER: Prostuję się, biorę głęboki wdech. Wchodzę z uśmiechem, nawiązuję kontakt wzrokowy z grupą i mówię głośne, ciepłe: „Cześć wszystkim!”.", 
+                    next: 'm5_res_leader', 
+                    impact: { coherence: 15, auth: 5, eq: 10 },
+                    addTrait: "Supermoc: Lider Emocjonalny"
+                }
+            ]
+        },
+        'm5_res_leader': {
+            chapter: 'Analiza Symulacji',
+            title: 'Przełamanie Ramy',
+            isFeedback: true,
+            feedbackText: `Zadziałało. Dlaczego?
+            <br><br>
+            Grupa była w stanie niepewności (stres). Wchodząc z pewną, ciepłą energią, dałeś im **Bezpieczeństwo**. Ich neurony lustrzane "odbiły" Twój spokój.
+            <br><br>
+            Ktoś od razu odpowiada: *"O, cześć! Wchodź, siadaj!"*. Atmosfera się rozluźniła. Stałeś się nieformalnym liderem, nie wydając ani jednego polecenia.`,
+            next: 'm5_deep_vibe'
+        },
+        'm5_res_cammo': {
+            chapter: 'Analiza Symulacji',
+            title: 'Wzmocnienie Napięcia',
+            isFeedback: true,
+            feedbackText: `Błąd. Dostosowałeś się do niskiej energii grupy, zamiast ją zmienić.
+            <br><br>
+            Wchodząc cicho i uciekając w telefon, wysłałeś sygnał niewerbalny: *"Też się boję. Jestem zagrożeniem lub ofiarą"*.
+            <br><br>
+            Atmosfera stała się jeszcze gęstsza. Teraz trudniej będzie Ci nawiązać jakąkolwiek rozmowę, bo zdefiniowałeś się jako "outsider".`,
+            next: 'm5_deep_vibe'
+        },
+
+        'm5_deep_vibe': {
+            chapter: 'Moduł 5: Zaawansowane',
+            title: 'Bycie Termostatem',
+            text: `Większość ludzi to **Termometry** – reagują na temperaturę otoczenia (jak inni są smutni, oni też. Jak inni są niemili, oni też).
+            
+Liderzy to **Termostaty** – oni USTAWIAJĄ temperaturę.
+            
+To wymaga odwagi. Czasem musisz utrzymać swoją dobrą energię, nawet gdy ktoś próbuje Cię ściągnąć w dół narzekaniem lub chłodem. Nazywamy to **Utrzymaniem Ramy (Frame Control)**.
+            
+Sprawdźmy to w trudnej rozmowie.`,
+            next: 'm5_sim_negativity'
+        },
+
+        // --- SYMULACJA 2: NEGATYWNOŚĆ ---
+        'm5_sim_negativity': {
+            chapter: 'Symulacja: Wampir Energetyczny',
+            title: 'Spotkanie z Narzekaczem',
+            text: `Rozmawiasz z nowo poznaną osobą. Ty jesteś w dobrym nastroju, ale ona zaczyna narzekać:
+            
+*„Beznadziejna ta impreza. Muzyka za głośna, jedzenie zimne, a w ogóle to pogoda tragiczna. Nie wiem, po co tu przyszedłem.”*
+            
+Ta osoba próbuje wciągnąć Cię w swoją negatywną ramę. Co robisz?`,
+            choices: [
+                { 
+                    text: "ULEGŁOŚĆ: „No... faktycznie, słabo to wygląda. Też jestem zmęczony.” (Dołączasz do narzekania, żeby być miłym)", 
+                    next: 'm5_res_submission', 
+                    impact: { coherence: -10, auth: -5 } 
+                },
+                { 
+                    text: "UTRZYMANIE RAMY: Uśmiecham się lekko i nie wchodzę w to. Mówię: „A mi się nawet podoba, fajnie czasem wyrwać się z domu. A Ty czym się zajmujesz na co dzień, co Cię kręci?” (Przekierowanie)", 
+                    next: 'm5_res_frame_control', 
+                    impact: { coherence: 20, eq: 5 },
+                    addTrait: "Mastery: Kontrola Ramy"
+                }
+            ]
+        },
+        'm5_res_frame_control': {
+            chapter: 'Analiza Symulacji',
+            title: 'Szczepionka na Negatywność',
+            isFeedback: true,
+            feedbackText: `Brawo. Nie zaatakowałeś go, ale też nie pozwoliłeś, by jego "trucizna" przeszła na Ciebie.
+            <br><br>
+            Zadziałałeś jak Termostat. Utrzymałeś swoją temperaturę. Teraz ta osoba ma dwa wyjścia: albo dostosuje się do Twojej pozytywnej energii (i przestanie narzekać), albo odejdzie. W obu przypadkach – wygrywasz. Ochroniłeś swoją energię.`,
+            next: 'm5_micro_skills'
+        },
+        'm5_res_submission': {
+            chapter: 'Analiza Symulacji',
+            title: 'Zarażenie Emocjonalne',
+            isFeedback: true,
+            feedbackText: `Wpadłeś w pułapkę "fałszywej empatii". Myślałeś, że narzekając razem z nim, zbudujesz więź.
+            <br><br>
+            Błąd. Zbudowałeś więź opartą na negatywności. Za 5 minut oboje będziecie wyprani z energii. Co gorsza, oddałeś kontrolę nad swoim nastrojem komuś innemu. Stałeś się Termometrem.`,
+            next: 'm5_micro_skills'
+        },
+
+        'm5_micro_skills': {
+            chapter: 'Moduł 5: Narzędzia',
+            title: '5.2. Mikroumiejętności Magnetyzmu',
+            text: `Na koniec tego modułu – konkretne narzędzia. Jak przyciągać ludzi bez słów?
+            
+1. **Oczy:** Utrzymuj kontakt wzrokowy nieco dłużej niż to komfortowe (tzw. *Sticky Eyes*). To buduje intymność.
+2. **Otwartość:** Odsłoń nadgarstki i szyję (sygnały braku zagrożenia). Nie krzyżuj rąk.
+3. **Uśmiech Duchenne'a:** Prawdziwy uśmiech angażuje mięśnie wokół oczu. Fałszywy – tylko usta.
+            
+Pamiętaj: **Ludzie zapomną, co powiedziałeś, ale nigdy nie zapomną, jak się przy Tobie czuli.**`,
+            next: 'm6_start',
+            progress: 75
+        },
+		// === MODUŁ 6: ASERTYWNOŚĆ I EMOCJE (MASTERCLASS) ===
+        'm6_start': {
+            chapter: 'Moduł 6: Odwaga Cywilna',
+            title: 'Anatomia Konfliktu',
+            text: `Wchodzimy na terytorium, którego większość ludzi unika jak ognia: **KONFLIKT.**
+            
+Kiedy pojawia się napięcie lub ktoś przekracza Twoje granice, Twój gadzi mózg ma tylko dwie strategie:
+1. **Walka (Atak):** Krzyk, oskarżenia, agresja.
+2. **Ucieczka (Uległość):** Milczenie, obrażanie się, duszenie w sobie.
+            
+Obie te strategie niszczą relacje.
+            
+W tym module nauczysz się **Trzeciej Drogi**. Nazywa się ona NVC (Nonviolent Communication) i jest używana przez negocjatorów na całym świecie.`,
+            next: 'm6_nvc_theory',
+            unlockModule: 6
+        },
+        'm6_nvc_theory': {
+            chapter: 'Moduł 6: Narzędzia',
+            title: '6.1. Algorytm NVC',
+            text: `Marshall Rosenberg odkrył, że przyczyną wojen (domowych i światowych) jest **Język Ocen**.
+            
+* "Jesteś leniwy!" (Ocena -> Atak -> Obrona)
+* "To jest głupie!" (Ocena -> Atak -> Obrona)
+            
+Język Pokoju (NVC) opiera się na **Faktach i Potrzebach**. Algorytm ma 4 kroki:
+1. **OBSERWACJA:** Co widzę? (Bez ocen, czysta kamera).
+2. **UCZUCIE:** Co czuję? (Smutek, złość, lęk).
+3. **POTRZEBA:** Czego mi brakuje? (Szacunku, porządku, odpoczynku).
+4. **PROŚBA:** Konkretne działanie.
+            
+Brzmi prosto? Sprawdźmy to w ogniu walki.`,
+            source: 'Rosenberg, M. B. (2003). Porozumienie bez przemocy.',
+            next: 'm6_sim_conflict_intro'
+        },
+
+        // --- SYMULACJA: DOMOWE PIEKŁO ---
+        'm6_sim_conflict_intro': {
+            chapter: 'Symulacja: Asertywność',
+            title: 'Bitwa o Kuchnię',
+            text: `Mieszkasz ze współlokatorem (lub partnerem), Tomkiem. Umowa była jasna: zmywamy po sobie od razu.
+            
+Wracasz zmęczony z pracy, marzysz o kolacji. Wchodzisz do kuchni, a tam... sajgon. Góra brudnych naczyń z resztkami jedzenia, lepki blat, smród. To już trzeci raz w tym tygodniu.
+            
+Czujesz, jak krew w Tobie wrze. Tomek siedzi na kanapie obok i gra na konsoli.
+            
+Jak reagujesz? Wybierz ostrożnie.`,
+            choices: [
+                { 
+                    text: "STRATEGIA ATAKU: Wybucham: „Tomek, jesteś obrzydliwym syfiarzem! Ile razy mam ci powtarzać?! Masz to natychmiast sprzątnąć, mam tego dość!”", 
+                    next: 'm6_res_attack', 
+                    impact: { eq: -10, nvc: -5 } 
+                },
+                { 
+                    text: "STRATEGIA BIERNA: Wzdycham głośno, żeby usłyszał, ale nic nie mówię. Zmywam za niego, trzaskając talerzami, żeby poczuł się winny.", 
+                    next: 'm6_res_passive', 
+                    impact: { coherence: -5, auth: -5 },
+                    addTrait: "Błąd: Bierna Agresja"
+                },
+                { 
+                    text: "STRATEGIA NVC: Biorę głęboki wdech. Podchodzę i mówię spokojnie: „Tomek, kiedy widzę pełen zlew naczyń (Fakt), czuję dużą frustrację (Uczucie), bo potrzebuję porządku, żeby odpocząć (Potrzeba). Czy możesz to teraz ogarnąć? (Prośba)”", 
+                    next: 'm6_res_nvc', 
+                    impact: { eq: 15, nvc: 10, auth: 5 },
+                    addTrait: "Mastery: Język NVC"
+                }
+            ]
+        },
+        'm6_res_nvc': {
+            chapter: 'Analiza Symulacji',
+            title: 'Rozbrojenie Miny',
+            isFeedback: true,
+            feedbackText: `Zobacz, co się stało. Tomek na chwilę zastyga. Spodziewał się ataku, na który miał już przygotowaną obronę.
+            <br><br>
+            Ale Ty go nie zaatakowałeś. Powiedziałeś o **SOBIE** (swojej frustracji), a nie o **NIM** (że jest leniem).
+            <br><br>
+            Tomek nie musi się bronić. Odpowiada: *"Dobra, sorki stary, zapomniałem. Już idę."*
+            Wygrałeś czystą kuchnię i – co ważniejsze – zachowałeś dobrą relację. To jest asertywność, a nie agresja.`,
+            next: 'm6_neuro_intro'
+        },
+        'm6_res_attack': {
+            chapter: 'Analiza Symulacji',
+            title: 'Eskalacja Konfliktu',
+            isFeedback: true,
+            feedbackText: `Użyłeś języka ocen ("syfiarz"). To jak rzucenie granatu.
+            <br><br>
+            Tomek natychmiast kontratakuje: *"Sam jesteś syfiarzem! Tydzień temu też zostawiłeś kubek! Odczep się ode mnie!"*.
+            <br><br>
+            Wybucha awantura. Naczynia leżą dalej, a atmosfera w domu jest toksyczna. Wyładowałeś złość, ale nie osiągnąłeś celu. Przegrałeś relację.`,
+            next: 'm6_neuro_intro'
+        },
+        'm6_res_passive': {
+            chapter: 'Analiza Symulacji',
+            title: 'Auto-Destrukcja',
+            isFeedback: true,
+            feedbackText: `Bierna agresja to trucizna. Zmywając za niego, nauczyłeś go: *"Możesz mnie ignorować, i tak posprzątam"*.
+            <br><br>
+            W środku rośnie w Tobie uraza. Za miesiąc wybuchniesz z podwójną siłą o byle drobiazg. Niewyrażone emocje nie znikają – one gniją od środka.`,
+            next: 'm6_neuro_intro'
+        },
+
+        'm6_neuro_intro': {
+            chapter: 'Moduł 6: Neurobiologia',
+            title: '6.2. Odwaga to Mięsień',
+            text: `Kończymy ten moduł ważną lekcją o mózgu.
+            
+Wielu ludzi czeka, aż "poczują się gotowi", żeby być asertywnym. Nigdy się nie poczujesz.
+            
+Odwaga nie jest stanem umysłu – jest **nawykiem**.
+            
+Norman Doidge w książce *"The Brain That Changes Itself"* opisuje **Neuroplastyczność**. Za każdym razem, gdy przełamujesz lęk (np. odzywasz się, gdy ktoś Ci przerywa), fizycznie wzmacniasz ścieżkę neuronową odwagi w mózgu.`,
+            source: 'Doidge, N. (2007). The Brain That Changes Itself.',
+            next: 'm6_challenge',
+            progress: 85
+        },
+        'm6_challenge': {
+            chapter: 'Wyzwanie Praktyczne',
+            title: 'Trening Odwagi',
+            text: `Zanim przejdziesz do finału, oto Twoje zadanie domowe po kursie:
+            
+**"Metoda Małych Kroków"**
+Codziennie zrób jedną mikroskopijną rzecz, która wywołuje dyskomfort:
+1. Zapytaj kogoś o godzinę (mimo że masz telefon).
+2. Utrzymaj kontakt wzrokowy sekundę dłużej.
+3. Powiedz "Nie", gdy nie masz na coś ochoty.
+            
+Twój mózg nauczy się, że "strach nie oznacza śmierci".
+            
+Jesteś gotowy na Wielki Finał?`,
+            choices: [
+                { text: "Jestem gotowy. Uruchom Moduł 7 (Finał).", next: 'm7_start', impact: { coherence: 5 } }
+            ]
+        },
+		// === MODUŁ 7: INTEGRACJA I FINAŁ (MASTERCLASS) ===
+        'm7_start': {
+            chapter: 'Moduł 7: Styl Życia',
+            title: 'Efekt Domina',
+            text: `Gratulacje. Przeszedłeś przez najtrudniejsze etapy.
+            
+Wiesz już, że pewność siebie to biochemia (M2), słuchanie to obecność (M3), a zaufanie to przewidywalność (M4).
+            
+Ale wiedza to tylko potencjał. **Moc płynie z Integracji.**
+            
+Twoim celem nie jest "używanie technik" do końca życia. Twoim celem jest, by te zachowania stały się Twoją drugą naturą. Byś stał się osobą **MAGNETYCZNĄ** – taką, która przyciąga nie przez manipulację, ale przez to, kim JEST.`,
+            next: 'm7_gratitude',
+            unlockModule: 7
+        },
+        'm7_gratitude': {
+            chapter: 'Moduł 7: Narzędzia',
+            title: '7.1. Paliwo Magnetyzmu',
+            text: `Ostatnim elementem układanki jest **Wdzięczność**.
+            
+To brzmi banalnie, ale neurobiologicznie to potęga. Badania z Berkeley (2015) wykazały, że praktykowanie wdzięczności podnosi poziom dopaminy i serotoniny.
+            
+Człowiek wdzięczny nie emanuje "brakiem" ("Potrzebuję cię, żebyś mnie dowartościował"), ale "pełnią" ("Jestem szczęśliwy, chętnie się tym podzielę").
+            
+To jest definicja charyzmy.`,
+            source: 'Emmons, R. A. (2015). Gratitude and Well-being.',
+            next: 'm7_final_sim_context'
+        },
+
+        // --- WIELKI FINAŁ ---
+        'm7_final_sim_context': {
+            chapter: 'Finał Kursu',
+            title: 'Ostatni Egzamin',
+            text: `To jest Twój test końcowy. Symulacja, która sprawdzi, czy potrafisz połączyć wszystko, czego się nauczyłeś.
+            
+**SCENARIUSZ:**
+Jesteś na dużym wydarzeniu kończącym rok (bankiet, wesele, gala). Jest tu mnóstwo ludzi.
+            
+Stoisz przy barze. Czujesz się inaczej niż kiedyś. Twoja postawa jest otwarta (M2). Uśmiechasz się oczami (M5). Nie uciekasz w telefon.
+            
+Podchodzi do Ciebie osoba, która od dawna Cię intrygowała (może to być potencjalny partner biznesowy lub życiowy). Patrzy Ci w oczy i mówi:
+            
+*„Cześć. Obserwuję cię od chwili... Masz w sobie niesamowicie dobrą energię. Co cię dzisiaj tak pozytywnie nakręca?”*`,
+            next: 'm7_final_choice'
+        },
+        'm7_final_choice': {
+            chapter: 'Finał Kursu',
+            title: 'Moment Prawdy',
+            text: `To pytanie to test. Masz sekundę na reakcję.
+            
+Stary Ty mógłby uciec w lęk przed oceną (M1) lub założyć maskę (M2). Nowy Ty ma wybór.
+            
+Jak reagujesz?`,
+            choices: [
+                { 
+                    text: "STARY SCHEMAT: Peszę się, odwracam wzrok i wzruszam ramionami: „A, dzięki... nie wiem, chyba po prostu mam dobry dzień. Nic wielkiego.” (Umniejszanie)", 
+                    next: 'm7_res_fail', 
+                    impact: { auth: -20, coherence: -10 } 
+                },
+                { 
+                    text: "NOWY TY: Uśmiecham się szczerze, utrzymuję kontakt wzrokowy: „Dziękuję, miło mi to słyszeć! Wiesz, po prostu postanowiłem, że dziś będę w 100% sobą, bez udawania. A co Ciebie tutaj sprowadza?” (Integracja)", 
+                    next: 'm7_res_win', 
+                    impact: { auth: 30, coherence: 20, eq: 20 },
+                    addTrait: "Status: MAGNETYCZNY"
+                }
+            ]
+        },
+        'm7_res_win': {
+            chapter: 'Finał: Sukces',
+            title: 'Połączenie Nawiązane',
+            isFeedback: true,
+            feedbackText: `To jest właśnie **Tryb Magnetyczny**.
+            <br><br>
+            1. **Przyjąłeś komplement** (Pewność siebie/M2).<br>
+            2. **Powiedziałeś prawdę** o swojej intencji (Autentyczność/M1).<br>
+            3. **Zadałeś pytanie zwrotne**, okazując zainteresowanie (Słuchanie/M3).
+            <br><br>
+            Rozmówca uśmiecha się szeroko, czując ulgę: *"Wow, rzadko słyszy się taką szczerość. Szukam tu właśnie takich ludzi..."*.
+            <br><br>
+            Rozmowa płynie naturalnie. Nie musisz już niczego udawać. Przyciągasz ludzi tym, kim jesteś.`,
+            next: 'end_game',
+            progress: 100
+        },
+        'm7_res_fail': {
+            chapter: 'Finał: Lekcja',
+            title: 'Utracona Szansa',
+            isFeedback: true,
+            feedbackText: `Stary schemat "Nie wychylaj się" (M1) zadziałał automatycznie. Umniejszając sobie ("nic wielkiego"), odrzuciłeś prezent energetyczny od drugiej osoby.
+            <br><br>
+            Rozmówca czuje się lekko odrzucony i niezręcznie. *"Aha, rozumiem. No to miłego wieczoru..."* – mówi i odchodzi.
+            <br><br>
+            To cenna lekcja. Następnym razem, gdy ktoś Cię doceni – weź głęboki oddech, zastosuj Power Pose (w myślach) i po prostu powiedz "Dziękuję". Jesteś tego wart.`,
+            next: 'end_game',
+            progress: 100
+        },
+
+        // === EKRAN KOŃCOWY ===
+        'end_game': {
+            chapter: 'Podsumowanie',
+            title: 'Twój Nowy Rozdział',
+            text: `Gratulacje. Dotarłeś do końca **LVLY Masterclass**.
+            
+To koniec symulacji, ale początek Twojej pracy w świecie rzeczywistym. Spójrz na panel po lewej stronie. To Twój kapitał startowy.
+            
+Masz teraz narzędzia:
+* Wiesz, jak radzić sobie z lękiem (Lustro Prawdy).
+* Wiesz, jak używać ciała do budowania siły (Power Pose).
+* Wiesz, jak słuchać (Parafraza).
+* Wiesz, jak stawiać granice (NVC).
+            
+**Pamiętaj: Nie musisz być idealny. Musisz być prawdziwy.**
+            
+Powodzenia na nowej drodze.`,
+            choices: [
+                { text: "Zakończ Kurs i Zapisz Wyniki", next: 'credits', impact: {} }
+            ]
+        },
+        'credits': {
+            chapter: 'Credits',
+            title: 'Dziękujemy',
+            text: `Dziękujemy za udział w kursie LVLY.
+            
+Możesz teraz zamknąć tę stronę lub odświeżyć ją, aby przejść inną ścieżką i odblokować pozostałe osiągnięcia.`,
+            choices: []
+        }
+    };
+
+    // --- INICJALIZACJA KOŃCOWA ---
+    
+    // Uruchomienie gry po załadowaniu strony
+    window.onload = function() {
+        initGame();
+    };
+
+</script>
+</body>
+</html>
